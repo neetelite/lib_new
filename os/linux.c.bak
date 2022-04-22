@@ -1,0 +1,101 @@
+#include "linux.h"
+
+#include "../lib/scalar.h"
+#include "../lib/cstring.h"
+
+#include "../lib/image.h"
+
+#include <stdio.h>
+#include <GLFW/glfw3.h>
+
+struct OS_Display os_display;
+struct OS_State os_state;
+
+
+//struct Image
+struct Image
+os_window_capture_image(struct OS_Window *window)
+{
+	XImage *image = XGetImage(os_display.handle, window->handle,
+							  0, 0, window->attributes.width, window->attributes.height,
+							  AllPlanes, ZPixmap);
+
+	struct Image result = {};
+	result.width = image->width;
+	result.height = image->height;
+	result.data = image->data;
+	result.channel_count = 3;
+
+	return(result);
+}
+
+void
+os_path_build()
+{
+	/* path_exe */
+	readlink("/proc/self/exe", os_state.path_exe, PATH_MAX);
+
+	/* path_run */
+	cstr_path_parent(os_state.path_run, os_state.path_exe);
+
+	/* path_data */
+	cstr_cat(os_state.path_data, os_state.path_run, "data/");
+
+	/* path */
+	cstr_path_parent(os_state.path, os_state.path_run);
+
+	/* path_src */
+	cstr_cat(os_state.path_src, os_state.path, "src/");
+}
+
+void
+os_init()
+{
+	/* Path */
+	os_path_build();
+
+	/* X11 */
+	os_display.handle = XOpenDisplay(NULL);
+	os_display.window_root.handle = RootWindow(os_display.handle, DefaultScreen(os_display.handle));
+
+	XGetWindowAttributes(os_display.handle, os_display.window_root.handle, &os_display.window_root.attributes);
+}
+
+i32
+os_graphics_init(i32 width, i32 height, CString window_name)
+{
+	/* OS STUFF */
+	if(glfwInit() == 0) return(-1);
+
+	#if 0
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+	#endif
+
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	os_display.window_graphics = glfwCreateWindow(width, height, window_name, NULL, NULL);
+	if(os_display.window_graphics == NULL) return(-2);
+
+	glfwMakeContextCurrent(os_display.window_graphics);
+
+	if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return(-3);
+
+	/* CUSTOM GL STUFF */
+	gl_viewport_rec_set(VEC4(0, 0, width, height));
+	gl_viewport_color_set(VEC4_COLOR_BLUE);
+
+	gl_enable(GL_TEXTURE_2D);
+	//gl_enable(GL_DEPTH_TEST);
+	//gl_enable(GL_BLEND);
+
+	//gl_func_blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//gl_func_depth(GL_LEQUAL);
+}
+
+void
+os_graphics_draw()
+{
+	glfwSwapBuffers(os_display.window_graphics);
+}

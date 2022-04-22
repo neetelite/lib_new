@@ -1,0 +1,59 @@
+#ifndef _os_linux_h
+#define _os_linux_h
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#undef Status
+#undef Bool
+#undef True
+#undef False
+
+#include <linux/limits.h>
+#include <unistd.h>
+
+#include "../inc/glad.h"
+
+#include "../lib/graphics.h"
+#include "../lib/cstring.h"
+#include "../lib/image.h"
+
+#include <GLFW/glfw3.h>
+
+struct OS_Window
+{
+	Window handle;
+	XWindowAttributes attributes;
+};
+
+struct OS_Display
+{
+	Display *handle;
+	struct OS_Window window_root;
+	GLFWwindow *window_graphics;
+};
+
+#define PATH_MAX 4096
+
+struct OS_State
+{
+	/* TODO: Change these to Strings */
+
+	char path[PATH_MAX];
+	char path_exe[PATH_MAX];
+	char path_run[PATH_MAX];
+	char path_src[PATH_MAX];
+	char path_data[PATH_MAX];
+};
+
+extern struct OS_Display os_display;
+extern struct OS_State os_state;
+
+/* Functions */
+void os_init();
+i32 os_graphics_init();
+void os_graphics_draw();
+
+struct OS_Window os_window_find(CString window_name);
+struct Image os_window_capture_image(struct OS_Window *window);
+
+#endif /* _os_linux_h */

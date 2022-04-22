@@ -1,0 +1,34 @@
+/* Sum of all number must be between 0 and 1 */
+
+/* Linear */
+FILTER_IMPULSE = {
+	0, 0, 0,
+	0, 1, 0,
+	0, 0, 0,
+};
+
+FILTER_SHIFT = {
+	0, 0, 0,
+	0, 0, 0,
+	0, 0, 1,
+};
+
+FILTER_BOX = {
+	/* Averaging - Blocky */
+	0.1, 0.1, 0.1,
+	0.1, 0.1, 0.1,
+	0.1, 0.1, 0.1,
+};
+
+FILTER_FUZZY = {
+	/* Averaging - Smooth */
+	/* Can be computer using gausian */
+	0.05, 0.1, 0.05,
+	0.1,  0.4, 0.1,
+	0.05, 0.1, 0.05,
+};
+
+/* Non linear filters */
+/* Median Filtering Algorithm */
+/* Bias Guassian Kernel Algorithm */
+/* Bilateral Filter */
